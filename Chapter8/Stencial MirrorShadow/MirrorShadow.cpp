@@ -1,7 +1,7 @@
 /*______________________________________________________________
- 
- Desc: Demonstrates mirrors with stencils.  Use the arrow keys
-       and the 'A' and 'S' key to navigate the scene and translate the teapot.
+
+Desc: Demonstrates mirrors with stencils.  Use the arrow keys
+and the 'A' and 'S' key to navigate the scene and translate the teapot.
 */
 
 #include "d3dUtility.h"
@@ -26,6 +26,7 @@ D3DMATERIAL9 TeapotMtrl;
 
 void RenderScene();
 void RenderMirror();
+void RenderShadow();
 
 struct Vertex
 {
@@ -151,7 +152,7 @@ bool SetUp()
 	D3DXVECTOR3 lightDir(0.707f, -0.707f, 0.707f);
 	D3DXCOLOR color(1.0f, 1.0f, 1.0f, 1.0f);
 	D3DLIGHT9 light = d3d9::InitDirLight(&lightDir, &color);
-	
+
 	// 注册光源
 	g_pDevice->SetLight(0, &light);
 	g_pDevice->LightEnable(0, true);
@@ -182,12 +183,13 @@ bool DisPlay(DWORD timeDelta)
 	if (g_pDevice)
 	{
 		static float radius = 20.0f;
+		static float angle = (3.0f * D3DX_PI) / 2.0f;
 
 		if (::GetAsyncKeyState(VK_LEFT) & 0x8000f)
-			TeapotPosition.x -= 3.0f * ftimeDleta;
+			angle -= 0.5f * ftimeDleta;
 
 		if (::GetAsyncKeyState(VK_RIGHT) & 0x8000f)
-			TeapotPosition.x += 3.0f * ftimeDleta;
+			angle += 0.5f * ftimeDleta;
 
 		if (::GetAsyncKeyState(VK_UP) & 0x8000f)
 			radius -= 2.0f * ftimeDleta;
@@ -195,14 +197,12 @@ bool DisPlay(DWORD timeDelta)
 		if (::GetAsyncKeyState(VK_DOWN) & 0x8000f)
 			radius += 2.0f * ftimeDleta;
 
-
-		static float angle = (3.0f * D3DX_PI) / 2.0f;
-
 		if (::GetAsyncKeyState('A') & 0x8000f)
-			angle -= 0.5f * ftimeDleta;
+			TeapotPosition.x -= 3.0f * ftimeDleta;
 
 		if (::GetAsyncKeyState('S') & 0x8000f)
-			angle += 0.5f * ftimeDleta;
+			TeapotPosition.x += 3.0f * ftimeDleta;
+
 
 		D3DXVECTOR3 position(cosf(angle) * radius, 3.0f, sinf(angle) * radius);
 		D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
@@ -221,6 +221,8 @@ bool DisPlay(DWORD timeDelta)
 		g_pDevice->BeginScene();
 
 		RenderScene();
+
+		RenderShadow();
 
 		RenderMirror();
 
@@ -258,7 +260,7 @@ void RenderScene()
 	g_pDevice->SetMaterial(&MirrorMtrl);
 	g_pDevice->SetTexture(0, MirrorTex);
 	g_pDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 18, 2);
-	
+
 }
 
 void RenderMirror()
@@ -321,6 +323,59 @@ void RenderMirror()
 	// 取消融合及末班功能
 	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	g_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+}
+
+void RenderShadow()
+{
+	g_pDevice->SetRenderState(D3DRS_STENCILENABLE, true);
+	g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	g_pDevice->SetRenderState(D3DRS_STENCILREF, 0x0);
+	g_pDevice->SetRenderState(D3DRS_STENCILMASK, 0xffffffff);
+	g_pDevice->SetRenderState(D3DRS_STENCILWRITEMASK, 0xffffffff);
+	g_pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	g_pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_INCR); // increment to 1
+
+	// position shadow
+	D3DXVECTOR4 lightDirection(0.707f, -0.707f, 0.707f, 0.0f);
+	D3DXPLANE groundPlane(0.0f, -1.0f, 0.0f, 0.0f);
+
+	D3DXMATRIX S;
+	D3DXMatrixShadow(
+		&S,
+		&lightDirection,
+		&groundPlane);
+
+	D3DXMATRIX T;
+	D3DXMatrixTranslation(
+		&T,
+		TeapotPosition.x,
+		TeapotPosition.y,
+		TeapotPosition.z);
+
+	D3DXMATRIX W = T * S;
+	g_pDevice->SetTransform(D3DTS_WORLD, &W);
+
+	// alpha blend the shadow
+	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+	g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	D3DMATERIAL9 mtrl = d3d9::InitMaterial(d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, 0.0f);
+	mtrl.Diffuse.a = 0.5f; // 50% transparency.
+
+	// Disable depth buffer so that z-fighting doesn't occur when we
+	// render the shadow on top of the floor.
+	g_pDevice->SetRenderState(D3DRS_ZENABLE, false);
+
+	g_pDevice->SetMaterial(&mtrl);
+	g_pDevice->SetTexture(0, 0);
+	Teapot->DrawSubset(0);
+
+	g_pDevice->SetRenderState(D3DRS_ZENABLE, true);
+	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	g_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+
 }
 
 LRESULT CALLBACK d3d9::WndProc(

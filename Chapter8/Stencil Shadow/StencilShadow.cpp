@@ -1,7 +1,7 @@
 /*______________________________________________________________
- 
- Desc: Demonstrates mirrors with stencils.  Use the arrow keys
-       and the 'A' and 'S' key to navigate the scene and translate the teapot.
+
+Desc: Demonstrates mirrors with stencils.  Use the arrow keys
+and the 'A' and 'S' key to navigate the scene and translate the teapot.
 */
 
 #include "d3dUtility.h"
@@ -25,7 +25,7 @@ D3DXVECTOR3 TeapotPosition;
 D3DMATERIAL9 TeapotMtrl;
 
 void RenderScene();
-void RenderMirror();
+void RenderShadow();
 
 struct Vertex
 {
@@ -97,20 +97,20 @@ bool SetUp()
 	VB->Lock(0, 0, (void**)&v, 0);
 
 	// floor
-	v[0] = Vertex(-7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[1] = Vertex(-7.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
-	v[2] = Vertex(7.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+	v[0]  = Vertex(-7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[1]  = Vertex(-7.5f, 0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+	v[2]  = Vertex( 7.5f, 0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
 
-	v[3] = Vertex(-7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-	v[4] = Vertex(7.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-	v[5] = Vertex(7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
+	v[3]  = Vertex(-7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+	v[4]  = Vertex( 7.5f, 0.0f,  0.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+	v[5]  = Vertex( 7.5f, 0.0f, -10.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f);
 
 	// wall
-	v[6] = Vertex(-7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-	v[7] = Vertex(-7.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-	v[8] = Vertex(-2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+	v[6]  = Vertex(-7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[7]  = Vertex(-7.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+	v[8]  = Vertex(-2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
 
-	v[9] = Vertex(-7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
+	v[9]  = Vertex(-7.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
 	v[10] = Vertex(-2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
 	v[11] = Vertex(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
@@ -127,11 +127,11 @@ bool SetUp()
 	// mirror
 	v[18] = Vertex(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
 	v[19] = Vertex(-2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-	v[20] = Vertex(2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+	v[20] = Vertex( 2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
 
 	v[21] = Vertex(-2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-	v[22] = Vertex(2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-	v[23] = Vertex(2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
+	v[22] = Vertex( 2.5f, 5.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
+	v[23] = Vertex( 2.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
 
 	VB->Unlock();
 
@@ -151,7 +151,7 @@ bool SetUp()
 	D3DXVECTOR3 lightDir(0.707f, -0.707f, 0.707f);
 	D3DXCOLOR color(1.0f, 1.0f, 1.0f, 1.0f);
 	D3DLIGHT9 light = d3d9::InitDirLight(&lightDir, &color);
-	
+
 	// 注册光源
 	g_pDevice->SetLight(0, &light);
 	g_pDevice->LightEnable(0, true);
@@ -182,12 +182,13 @@ bool DisPlay(DWORD timeDelta)
 	if (g_pDevice)
 	{
 		static float radius = 20.0f;
+		static float angle = (3.0f * D3DX_PI) / 2.0f;
 
 		if (::GetAsyncKeyState(VK_LEFT) & 0x8000f)
-			TeapotPosition.x -= 3.0f * ftimeDleta;
+			angle -= 0.5f * ftimeDleta;
 
 		if (::GetAsyncKeyState(VK_RIGHT) & 0x8000f)
-			TeapotPosition.x += 3.0f * ftimeDleta;
+			angle += 0.5f * ftimeDleta;
 
 		if (::GetAsyncKeyState(VK_UP) & 0x8000f)
 			radius -= 2.0f * ftimeDleta;
@@ -195,14 +196,12 @@ bool DisPlay(DWORD timeDelta)
 		if (::GetAsyncKeyState(VK_DOWN) & 0x8000f)
 			radius += 2.0f * ftimeDleta;
 
-
-		static float angle = (3.0f * D3DX_PI) / 2.0f;
-
 		if (::GetAsyncKeyState('A') & 0x8000f)
-			angle -= 0.5f * ftimeDleta;
+			TeapotPosition.x -= 3.0f * ftimeDleta;
 
 		if (::GetAsyncKeyState('S') & 0x8000f)
-			angle += 0.5f * ftimeDleta;
+			TeapotPosition.x += 3.0f * ftimeDleta;
+
 
 		D3DXVECTOR3 position(cosf(angle) * radius, 3.0f, sinf(angle) * radius);
 		D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
@@ -222,7 +221,7 @@ bool DisPlay(DWORD timeDelta)
 
 		RenderScene();
 
-		RenderMirror();
+		RenderShadow();
 
 		g_pDevice->EndScene();
 		g_pDevice->Present(0, 0, 0, 0);
@@ -258,69 +257,121 @@ void RenderScene()
 	g_pDevice->SetMaterial(&MirrorMtrl);
 	g_pDevice->SetTexture(0, MirrorTex);
 	g_pDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 18, 2);
-	
+
 }
 
-void RenderMirror()
+void RenderShadow()
 {
-	// 设置模板属性
+	//// 设置模板属性
+	//g_pDevice->SetRenderState(D3DRS_STENCILENABLE, true);
+	//g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+	//g_pDevice->SetRenderState(D3DRS_STENCILREF, 0x1);
+	//g_pDevice->SetRenderState(D3DRS_STENCILMASK, 0xffffffff);
+	//g_pDevice->SetRenderState(D3DRS_STENCILWRITEMASK, 0xffffffff);
+	//g_pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	//g_pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	//g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+
+	//// 禁止写入深度缓存
+	//g_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, false);
+	//// 打开透明效果
+	//g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+	//g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+	//g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
+	//// 初始化模板中镜面区域
+	//g_pDevice->SetMaterial(&MirrorMtrl);
+	//g_pDevice->SetTexture(0, MirrorTex);
+	//g_pDevice->SetFVF(Vertex::FVF);
+	//g_pDevice->SetStreamSource(0, VB, 0, sizeof(Vertex));
+
+	//D3DXMATRIX world;
+	//D3DXMatrixIdentity(&world);
+	//g_pDevice->SetTransform(D3DTS_WORLD, &world);
+	//g_pDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 18, 2);
+
+	//// 恢复深度缓存区写入功能
+	//g_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, true);
+	//g_pDevice->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+
+	//// 重新设置模板属性
+	//g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	//g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+
+	//// 设置融合参数
+	//g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTCOLOR);
+	//g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	//// 世界矩阵
+	//D3DXMATRIX W, T, R;
+	//D3DXPLANE plan(0.0f, 0.0f, 1.0f, 0.0f);
+	//D3DXMatrixReflect(&R, &plan);
+	//D3DXMatrixTranslation(&T, TeapotPosition.x, TeapotPosition.y, TeapotPosition.z);
+	//W = T*R;
+
+	//// 画镜像
+	//g_pDevice->SetMaterial(&TeapotMtrl);
+	//g_pDevice->SetTexture(0, 0);
+	//g_pDevice->SetTransform(D3DTS_WORLD, &W);
+	//g_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);// 设置背面消除模式
+	//Teapot->DrawSubset(0);
+
+	//// 还原背面消除模式
+	//g_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	//// 取消融合及末班功能
+	//g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	//g_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+
+
+	/////////////////////////////////////////////////////////////////////////
 	g_pDevice->SetRenderState(D3DRS_STENCILENABLE, true);
-	g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
-	g_pDevice->SetRenderState(D3DRS_STENCILREF, 0x1);
+	g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	g_pDevice->SetRenderState(D3DRS_STENCILREF, 0x0);
 	g_pDevice->SetRenderState(D3DRS_STENCILMASK, 0xffffffff);
 	g_pDevice->SetRenderState(D3DRS_STENCILWRITEMASK, 0xffffffff);
-	g_pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
 	g_pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
-	g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+	g_pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_INCR); // increment to 1
 
-	// 禁止写入深度缓存
-	g_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, false);
-	// 打开透明效果
-	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-	g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-	g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	// position shadow
+	D3DXVECTOR4 lightDirection(0.707f, -0.707f, 0.707f, 0.0f);
+	D3DXPLANE groundPlane(0.0f, -1.0f, 0.0f, 0.0f);
 
-	// 初始化模板中镜面区域
-	g_pDevice->SetMaterial(&MirrorMtrl);
-	g_pDevice->SetTexture(0, MirrorTex);
-	g_pDevice->SetFVF(Vertex::FVF);
-	g_pDevice->SetStreamSource(0, VB, 0, sizeof(Vertex));
+	D3DXMATRIX S;
+	D3DXMatrixShadow(
+		&S,
+		&lightDirection,
+		&groundPlane);
 
-	D3DXMATRIX world;
-	D3DXMatrixIdentity(&world);
-	g_pDevice->SetTransform(D3DTS_WORLD, &world);
-	g_pDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 18, 2);
+	D3DXMATRIX T;
+	D3DXMatrixTranslation(
+		&T,
+		TeapotPosition.x,
+		TeapotPosition.y,
+		TeapotPosition.z);
 
-	// 恢复深度缓存区写入功能
-	g_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, true);
-	g_pDevice->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
-
-	// 重新设置模板属性
-	g_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
-	g_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
-
-	// 设置融合参数
-	g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTCOLOR);
-	g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
-	// 世界矩阵
-	D3DXMATRIX W, T, R;
-	D3DXPLANE plan(0.0f, 0.0f, 1.0f, 0.0f);
-	D3DXMatrixReflect(&R, &plan);
-	D3DXMatrixTranslation(&T, TeapotPosition.x, TeapotPosition.y, TeapotPosition.z);
-	W = T*R;
-
-	// 画镜像
-	g_pDevice->SetMaterial(&TeapotMtrl);
-	g_pDevice->SetTexture(0, 0);
+	D3DXMATRIX W = T * S;
 	g_pDevice->SetTransform(D3DTS_WORLD, &W);
-	g_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);// 设置背面消除模式
+
+	// alpha blend the shadow
+	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+	g_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	g_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	D3DMATERIAL9 mtrl = d3d9::InitMaterial(d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, d3d9::BLACK_COLOR, 0.0f);
+	mtrl.Diffuse.a = 0.5f; // 50% transparency.
+
+	// Disable depth buffer so that z-fighting doesn't occur when we
+	// render the shadow on top of the floor.
+	g_pDevice->SetRenderState(D3DRS_ZENABLE, false);
+
+	g_pDevice->SetMaterial(&mtrl);
+	g_pDevice->SetTexture(0, 0);
 	Teapot->DrawSubset(0);
 
-	// 还原背面消除模式
-	g_pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-	// 取消融合及末班功能
+	g_pDevice->SetRenderState(D3DRS_ZENABLE, true);
 	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	g_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+
 }
 
 LRESULT CALLBACK d3d9::WndProc(
