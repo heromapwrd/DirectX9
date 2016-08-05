@@ -1,0 +1,39 @@
+/*
+----------------------------------------------------------
+File:Transform.txt
+Author:Liu Quanbo
+Desc:Vertex Shader that transform a vertex by the view and
+	 projection transformation, and sets the vertex color 
+	 to blue.
+----------------------------------------------------------
+*/
+
+//视觉与透视投影变换矩阵
+matrix ViewProjMatrix;		
+//定点颜色					
+vector Blue={0.0f,0.0f,1.0f,1.0f};				
+
+//输入结构体
+struct VS_INPUT
+{
+	vector position :POSITION;
+};
+
+//输出结构体
+struct VS_OUTPUT
+{
+	vector position :POSITION;
+	vector diffuse  :COLOR;
+};
+
+//函数入口
+VS_OUTPUT Main(VS_INPUT input)
+{
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	output.position = mul(input.position,ViewProjMatrix);
+	output.diffuse = Blue;
+	return output;
+}
+
+
+
