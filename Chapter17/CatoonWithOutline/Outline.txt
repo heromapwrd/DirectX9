@@ -1,0 +1,52 @@
+/*
+File:Outline.txt
+Author:Liu Quanbo
+Desc:Vertex shader that draw the silhouette edge of mesh
+*/
+
+extern matrix WorldViewMatrix;
+extern matrix ProjMatrix;
+static vector Black = {0.0f,0.0f,0.0f,0.0f};
+
+struct VS_INPUT
+{
+	vector position   :POSITION;
+	vector normal	  :NORMAL0;
+	vector facenormal1 :NORMAL1;
+	vector facenormal2 :NORMAL2;
+};
+
+struct VS_OUTPUT
+{
+	vector position :POSITION;
+	vector diff		:COLOR;
+};
+
+VS_OUTPUT Main(VS_INPUT input)
+{
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	vector ptnormal = input.normal;
+	ptnormal.w = 0.0f;
+	vector facenormal1 = input.facenormal1;
+	facenormal1.w = 0.0f;
+	vector facenormal2 = input.facenormal2;
+	facenormal2.w = 0.0f;
+	vector position = input.position;
+
+	position = mul(position,WorldViewMatrix);
+	ptnormal = mul(ptnormal,WorldViewMatrix);
+	facenormal1 = mul(facenormal1,WorldViewMatrix);
+	facenormal2 = mul(facenormal2,WorldViewMatrix);
+
+	float dot0 = dot(position,facenormal1);
+	float dot1 = dot(position,facenormal2);
+
+	if(dot0*dot1<0.0f)
+	{
+		position += 0.1f * ptnormal;
+	}
+	
+	output.position = mul(position,ProjMatrix);
+	output.diff = Black;
+	return output;
+}

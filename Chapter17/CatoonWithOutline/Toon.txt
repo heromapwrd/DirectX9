@@ -1,0 +1,46 @@
+/*
+--------------------------------------------------------------------------
+File:Toon.txt
+Author:Liu Quanbo
+Desc:Vertex shader that lights geometry such it appears to be
+     drawn in a cartoon style.
+--------------------------------------------------------------------------
+*/
+
+extern matrix WorldViewMatrix;
+extern matrix WorldViewProjMatrix;
+extern vector Color;
+extern vector DirToLight;
+
+struct VS_INPUT
+{
+	vector position :POSITION;
+	vector normal	:NORMAL;
+};
+
+struct VS_OUTPUT
+{
+	vector position :POSITION;
+	vector diff		:COLOR;
+	float2 uvCoords :TEXCOORD;
+};
+
+
+VS_OUTPUT Main(VS_INPUT input)
+{
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	output.position = mul(input.position,WorldViewProjMatrix);
+	vector normal = input.normal;
+	normal.w = 0.0f;
+	normal = mul(normal,WorldViewMatrix);
+	vector tDirToLight = DirToLight;
+	tDirToLight.w = 0.0f;
+	tDirToLight = mul(tDirToLight,WorldViewMatrix);
+	float s = dot(tDirToLight,normal);
+	if(s<0.0f)
+		s = 0.0f;
+	output.uvCoords.x = s;
+	output.uvCoords.y = 0.5;
+	output.diff = Color;
+	return output;
+}
