@@ -1,0 +1,65 @@
+/*
+-------------------------------------------------------------
+File:ToonEffect.txt
+Author:Liu Quanbo
+Desc:Effect file that realize cartoon effect with vertex 
+	 shader
+-------------------------------------------------------------
+*/
+
+matrix WorldViewMatrix;
+matrix ProjMatrix;
+vector LightDir;
+vector Color;
+texture Tex;
+
+
+struct VS_INPUT
+{
+	vector position :POSITION;
+	vector normal	:NORMAL;
+};
+
+struct VS_OUTPUT
+{
+	vector position :POSITION;
+	float2 texcoord :TEXCOORD;
+	vector diffuse	:COLOR;
+};
+
+VS_OUTPUT Main(VS_INPUT input)
+{
+	VS_OUTPUT output = (VS_OUTPUT)0;
+	matrix WorldViewProjMatrix = mul(WorldViewMatrix,ProjMatrix);
+	output.position = mul(input.position,WorldViewProjMatrix);
+	vector viewLightDir = LightDir;
+	viewLightDir.w = 0.0f;
+	vector viewnormal = input.normal;
+	viewnormal.w = 0.0f;
+	viewLightDir = mul(viewLightDir,WorldViewMatrix);
+	viewnormal = mul(viewnormal,WorldViewMatrix);
+	float s = dot(viewLightDir,viewnormal);
+	if(s<0.0f)
+		s = 0.0f;
+	output.texcoord.x = s;
+	output.texcoord.y = 0.5f;
+	output.diffuse = Color;
+	return output;
+}
+
+sampler S0 = sampler_state
+{
+	Texture = (Tex);
+	MinFilter = POINT;
+	MagFilter = POINT;
+	MipFIlter = NONE;
+};
+
+technique ToonEffect
+{
+	pass P0
+	{
+		vertexshader = compile vs_1_1 Main();
+		sampler[0] = S0;
+	}
+}

@@ -1,0 +1,27 @@
+/*
+---------------------------------------------------------------
+File:Fog.txt
+Author:Liu Quanbo
+Desc:Effect file that handle device state for linear vertex fog
+---------------------------------------------------------------
+*/
+
+technique Fog
+{
+	pass P0
+	{
+		pixelshader = null;
+		vertexshader = null;
+		fvf = XYZ|NORMAL|TEX1;
+		Lighting = true;
+		NormalizeNormals = true;
+		SpecularEnable = false;
+
+		FogVertexMode = LINEAR;
+		FogStart = 50.0f;
+		FogEnd = 300.0f;
+
+		FogColor = 0x00CCCCCC;
+		FogEnable = true;
+	}
+}
