@@ -20,6 +20,7 @@
 // Custom vertex types for rendering text
 //-----------------------------------------------------------------------------
 #define MAX_NUM_VERTICES 50*6
+#define ZAXIS 1.0f
 
 struct FONT2DVERTEX { D3DXVECTOR4 p;   DWORD color;     FLOAT tu, tv; };
 struct FONT3DVERTEX { D3DXVECTOR3 p;   D3DXVECTOR3 n;   FLOAT tu, tv; };
@@ -678,13 +679,13 @@ HRESULT CD3DFont::Render3DText( const TCHAR* strText, DWORD dwFlags )
     {
         SIZE sz;
         GetTextExtent( strText, &sz );
-        x = -(((FLOAT)sz.cx)/10.0f)/2.0f;
+		x = -(((FLOAT)sz.cx) / ZAXIS) / 2.0f;
     }
     if( dwFlags & D3DFONT_CENTERED_Y )
     {
         SIZE sz;
         GetTextExtent( strText, &sz );
-        y = -(((FLOAT)sz.cy)/10.0f)/2.0f;
+		y = -(((FLOAT)sz.cy) / ZAXIS) / 2.0f;
     }
 
     // Turn off culling for two-sided text
@@ -692,7 +693,7 @@ HRESULT CD3DFont::Render3DText( const TCHAR* strText, DWORD dwFlags )
         m_pd3dDevice->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
 
     // Adjust for character spacing
-    x -= m_dwSpacing / 10.0f;
+	x -= m_dwSpacing / ZAXIS;
     FLOAT fStartX = x;
     TCHAR c;
 
@@ -706,7 +707,7 @@ HRESULT CD3DFont::Render3DText( const TCHAR* strText, DWORD dwFlags )
         if( c == '\n' )
         {
             x = fStartX;
-            y -= (m_fTexCoords[0][3]-m_fTexCoords[0][1])*m_dwTexHeight/10.0f;
+			y -= (m_fTexCoords[0][3] - m_fTexCoords[0][1])*m_dwTexHeight / ZAXIS;
         }
 
         if( (c-32) < 0 || (c-32) >= 128-32 )
@@ -717,8 +718,8 @@ HRESULT CD3DFont::Render3DText( const TCHAR* strText, DWORD dwFlags )
         FLOAT tx2 = m_fTexCoords[c-32][2];
         FLOAT ty2 = m_fTexCoords[c-32][3];
 
-        FLOAT w = (tx2-tx1) * m_dwTexWidth  / ( 10.0f * m_fTextScale );
-        FLOAT h = (ty2-ty1) * m_dwTexHeight / ( 10.0f * m_fTextScale );
+		FLOAT w = (tx2 - tx1) * m_dwTexWidth / (ZAXIS * m_fTextScale);
+		FLOAT h = (ty2 - ty1) * m_dwTexHeight / (ZAXIS * m_fTextScale);
 
         if( c != _T(' ') )
         {
@@ -740,7 +741,7 @@ HRESULT CD3DFont::Render3DText( const TCHAR* strText, DWORD dwFlags )
             }
         }
 
-        x += w - (2 * m_dwSpacing) / 10.0f;
+		x += w - (2 * m_dwSpacing) / ZAXIS;
     }
 
     // Unlock and render the vertex buffer

@@ -121,8 +121,6 @@ namespace d3d9
 		d3dpp.BackBufferCount = 1;
 		d3dpp.MultiSampleType = (D3DMULTISAMPLE_TYPE)iMultiSampType;
 		d3dpp.MultiSampleQuality = iMultiSampQuality;
-		/*d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
-		d3dpp.MultiSampleQuality = 0;*/
 		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.Windowed = bWindowed;
 		d3dpp.hDeviceWindow = hWnd;
