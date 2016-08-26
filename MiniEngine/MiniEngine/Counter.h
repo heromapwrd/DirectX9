@@ -1,6 +1,6 @@
 #ifndef _COUNTER_H__
 #define _COUNTER_H__
-#include<D3D9.h>
+#include "D3DCommon.h"
 #include<time.h>
 
 class Counter

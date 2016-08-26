@@ -143,6 +143,8 @@ HRESULT CD3DFont::InitDeviceObjects( LPDIRECT3DDEVICE9 pd3dDevice )
 
     // Create a font.  By specifying ANTIALIASED_QUALITY, we might get an
     // antialiased font, but this is not guaranteed.
+	// GetDeviceCaps(hDC,LOGPIXELSY) = 96
+
     INT nHeight    = -MulDiv( m_dwFontHeight, 
         (INT)(GetDeviceCaps(hDC, LOGPIXELSY) * m_fTextScale), 72 );
     DWORD dwBold   = (m_dwFontFlags&D3DFONT_BOLD)   ? FW_BOLD : FW_NORMAL;
@@ -172,7 +174,7 @@ HRESULT CD3DFont::InitDeviceObjects( LPDIRECT3DDEVICE9 pd3dDevice )
     // Calculate the spacing between characters based on line height
     GetTextExtentPoint32( hDC, TEXT(" "), 1, &size );
     x = m_dwSpacing = (DWORD) ceil(size.cy * 0.3f);
-
+	
     for( TCHAR c=32; c<127; c++ )
     {
         str[0] = c;
@@ -609,6 +611,8 @@ HRESULT CD3DFont::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor,
         FLOAT w = (tx2-tx1) *  m_dwTexWidth / m_fTextScale;
         FLOAT h = (ty2-ty1) * m_dwTexHeight / m_fTextScale;
 
+		float space = 1.0f*float(m_dwSpacing) / m_dwTexWidth;
+
         if( c != _T(' ') )
         {
             *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx1, ty2 );
@@ -630,7 +634,7 @@ HRESULT CD3DFont::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor,
             }
         }
 
-        sx += w - (2 * m_dwSpacing);
+		sx += w - (2 * m_dwSpacing);
     }
 
     // Unlock and render the vertex buffer

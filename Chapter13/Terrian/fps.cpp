@@ -38,10 +38,12 @@ bool FPSCounter::Render(D3DCOLOR color, float timeDelta)
 		}
 
 
-		//m_pFont->DrawText(20, 20, color, "This is a test,\nOK\nOk\nOK", D3DFONT_CENTERED_X | D3DFONT_CENTERED_Y);
+		m_pFont->DrawText(20, 20, color, "This is a test,\nOK\nOk\nOK", D3DFONT_CENTERED_X | D3DFONT_CENTERED_Y);
 		//m_pFont->Render3DText(m_cFpsString, D3DFONT_CENTERED_X);
-		//m_pFont->DrawText(20, 20, color, m_cFpsString, D3DFONT_CENTERED_X);
-		m_pFont->DrawTextScaled(0.0f, 0.0f, 0.001f, 1.0f, 1.0f, color, m_cFpsString,D3DFONT_CENTERED_X|D3DFONT_CENTERED_Y);
+		//m_pFont->DrawText(0, 0, color, m_cFpsString, D3DFONT_CENTERED_X|D3DFONT_CENTERED_Y);
+		//m_pFont->DrawTextScaled(0.0f, 0.0f, 0.001f, 0.1f, 0.1f, color, m_cFpsString,D3DFONT_CENTERED_X|D3DFONT_CENTERED_Y);
+		//m_pFont->DrawTextScaled(0.0f, 0.0f, 0.001f, 0.1f, 0.1f, color, "This is a test,\nOK\nOk\nOK", D3DFONT_CENTERED_X | D3DFONT_CENTERED_Y);
+
 	}
 	return true;
 }

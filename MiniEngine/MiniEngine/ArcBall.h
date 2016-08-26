@@ -6,11 +6,11 @@
 class ArcBall
 {
 	bool m_bDraged;
-	unsigned int m_vWidth;
-	unsigned int m_vHeight;
+	int m_vWidth;
+	int m_vHeight;
 
-	unsigned int m_vCenterX;
-	unsigned int m_vCenterY;
+	int m_vCenterX;
+	int m_vCenterY;
 
 	D3DXQUATERNION m_vStartQuat;
 	D3DXQUATERNION m_vPreQuat;

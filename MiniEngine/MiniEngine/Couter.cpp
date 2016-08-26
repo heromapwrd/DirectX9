@@ -53,7 +53,7 @@ void Counter::Decrement(DWORD times)
 void Counter::Tick(DWORD times)
 {
 	m_dwElapseTime += times;
-	if (IsFull)
+	if (IsFull())
 		Stop();
 }
 
@@ -82,7 +82,7 @@ DWORD Counter::GetCurTime()
 		return m_dwCurTime;
 	}
 	else
-		return -m_dwPeriodTime;
+		return m_dwPeriodTime;
 }
 
 

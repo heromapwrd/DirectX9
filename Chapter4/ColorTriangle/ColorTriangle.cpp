@@ -134,7 +134,12 @@ bool DisPlay(DWORD timeDelta)
 		y += delta;
 		if (y > 2 * D3DX_PI)
 			y = 0.0f;
-		D3DXMATRIX world = Rx*Ry;
+
+		D3DXMATRIX Translation;
+		D3DXMatrixTranslation(&Translation, 0.0f, 0.0f, 5.0f);
+		D3DXMATRIX world = Rx*Ry*Translation;
+		//D3DXMATRIX world = Rx*Ry;
+
 		g_pDevice->SetTransform(D3DTS_WORLD, &world);
 
 		g_pDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xffffffff, 1.0f, 0);

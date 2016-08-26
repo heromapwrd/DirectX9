@@ -243,7 +243,7 @@ void CD3DCamera::SetViewParams(D3DXVECTOR3& vEyePt, D3DXVECTOR3& vVecUp, D3DXVEC
 	SetViewMatrix();
 }
 
-void CD3DCamera::SetProjParams(float fovy, float aspect, float zn = 1.0f, float zf = 3000.0f)
+void CD3DCamera::SetProjParams(float fovy, float aspect, float zn /*= 1.0f*/, float zf /*= 3000.0f*/)
 {
 	m_fFov = fovy;
 	m_fAspect = aspect;
@@ -253,7 +253,7 @@ void CD3DCamera::SetProjParams(float fovy, float aspect, float zn = 1.0f, float 
 	
 }
 
-void CD3DCamera::SetProjParams(float width, float height, float plane = 1.0f, float zn = 1.0f, float zf = 3000.0f)
+void CD3DCamera::SetProjParams(float width, float height, float plane /*= 1.0f*/, float zn /*= 1.0f*/, float zf /*= 3000.0f*/)
 {
 	m_fAspect = width / height;
 	m_fFov = 2 * atan(height / plane);
