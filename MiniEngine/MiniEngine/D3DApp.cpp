@@ -43,21 +43,21 @@ HRESULT SetUp()
 	//D3DXMatrixPerspectiveFovLH(&matProjection, D3DX_PI / 4.0f, Aspect, 1.0f, 1000.0f);
 	//g_pDevice->SetTransform(D3DTS_PROJECTION, &matProjection);
 
-	//// 设置默认渲染状态
-	//g_pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	//g_pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-	//g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-	//g_pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+	// 设置默认渲染状态
+	g_pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	g_pDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	g_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	g_pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 
-	//// 设置默认纹理融合态
-	//g_pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-	//g_pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-	//g_pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	// 设置默认纹理融合态
+	g_pDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	g_pDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+	g_pDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
 
-	//// 设置默认纹理采样器
-	//g_pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-	//g_pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-	//g_pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+	// 设置默认纹理采样器
+	g_pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	g_pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	g_pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 
 
 	// 创建顶点缓存

@@ -3,6 +3,7 @@
 
 #include<tchar.h>
 #include "D3DCommon.h"
+#include "D3DBitmap.h"
 
 #define D3DFONT_BOLD	0x0001
 #define D3DFONT_ITALIC	0x0002
@@ -53,6 +54,8 @@ class D3DFont
 	LPDIRECT3DSTATEBLOCK9 m_pStateSaved;
 	LPDIRECT3DSTATEBLOCK9 m_pDrawText;
 
+	D3DBitmap m_BitMap;
+
 public:
 	D3DFont(TCHAR* strFontName, DWORD dwFontHeight, DWORD dwFlags);
 	~D3DFont();
@@ -89,5 +92,6 @@ private:
 
 };
 
+extern HWND g_hWnd;
 
 #endif // _D3DFONT_H__

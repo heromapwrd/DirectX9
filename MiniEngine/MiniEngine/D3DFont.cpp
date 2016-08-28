@@ -36,7 +36,7 @@ struct Font3DVertex
 #define D3DFVF_FONT3DVERTEX (D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
 #define MAXVERTEX 180
-#define SCALE3D	0.1f
+#define SCALE3D	0.05f
 
 D3DFont::D3DFont(TCHAR* strFontName, DWORD dwFontHeight, DWORD dwFlags)
 {
@@ -200,6 +200,8 @@ HRESULT D3DFont::Init(LPDIRECT3DDEVICE9 pDevice)
 		pRectBits += ddrect.Pitch;
 		//pTexBits = (WORD*)(pRectBits + ddrect.Pitch);
 	}
+	
+	m_BitMap.LoadFromData((BYTE*)pBitmapBits, m_dwTexWidth, m_dwTexHeight, 32);
 
 	m_pTexture->UnlockRect(0);
 	SelectObject(hDC, hBmpOld);
@@ -207,6 +209,10 @@ HRESULT D3DFont::Init(LPDIRECT3DDEVICE9 pDevice)
 	DeleteObject(hBitmap);
 	DeleteObject(hFont);
 	DeleteDC(hDC);
+
+	m_BitMap.SaveToImage("test.bmp");
+
+	
 
 
 	int vertexsize = max(sizeof(Font2DVertex), sizeof(Font3DVertex));
