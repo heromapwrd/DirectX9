@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>{2a8b86ba-f998-4c9a-b317-db1279716aae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Common\src\d3dfile.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\d3dfont.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\d3dutil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\diutil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\dmutil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\dsutil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\src\dxutil.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="3DDisplayObject.cpp" />
+    <ClCompile Include="3DDrawManager.cpp" />
+    <ClCompile Include="3DModel.cpp" />
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="DisplayObject.cpp" />
+    <ClCompile Include="EnemyShip.cpp" />
+    <ClCompile Include="FileWatch.cpp" />
+    <ClCompile Include="HeightMap.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="NotifyTool.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="PlayerShip.cpp" />
+    <ClCompile Include="Profile.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="TerrainEngine.cpp" />
+    <ClCompile Include="TerrainMesh.cpp" />
+    <ClCompile Include="donuts.cpp" />
+    <ClCompile Include="gamemenu.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Common\include\d3dfile.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\d3dfont.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\d3dutil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\diutil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\dmutil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\dsutil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\include\dxutil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="3DDisplayObject.h" />
+    <ClInclude Include="3DDrawManager.h" />
+    <ClInclude Include="3DModel.h" />
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="DisplayObject.h" />
+    <ClInclude Include="EnemyShip.h" />
+    <ClInclude Include="FileWatch.h" />
+    <ClInclude Include="HeightMap.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="NotifyTool.h" />
+    <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="PlayerShip.h" />
+    <ClInclude Include="Profile.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="TerrainEngine.h" />
+    <ClInclude Include="TerrainMesh.h" />
+    <ClInclude Include="donuts.h" />
+    <ClInclude Include="gamemenu.h" />
+  </ItemGroup>
+</Project>

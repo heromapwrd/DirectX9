@@ -69,9 +69,9 @@ bool D3DFPS::Render(D3DCOLOR color)
 		if (m_pFont)
 		{
 			HRESULT hr = 0;
-			//hr = m_pFont->DrawText(0, 0, m_cFpsString, color, D3DTEXT_HORIZONTAL, D3DTEXT_CENTER_X | D3DTEXT_TOP, D3DTEXT_HCENTER);
+			hr = m_pFont->DrawText(0, 0, m_cFpsString, color, D3DTEXT_HORIZONTAL, D3DTEXT_CENTER_X | D3DTEXT_TOP, D3DTEXT_HCENTER);
 			//hr = m_pFont->DrawText(0, 0, TEXT("ajdkfljalsk\n\n\rksjfk\raksjkfla\n\n\n"), color, D3DTEXT_VERTICAL, D3DTEXT_CENTER_X | D3DTEXT_CENTER_Y, D3DTEXT_VTOP);
-			hr = m_pFont->DrawText3D(TEXT("ajdkfljalsk\nksjfk\raksjkfla\n\n\n"), D3DXVECTOR3(0.0f, 5.0f, 0.0f), 0xffff0000);
+			//hr = m_pFont->DrawText3D(TEXT("ajdkfljalsk\nksjfk\raksjkfla\n\n\n"), D3DXVECTOR3(0.0f, 5.0f, 0.0f), 0xffff0000);
 			if (FAILED(hr))
 				return false;
 		}

@@ -12,12 +12,6 @@
 #include<wingdi.h>
 #include<tchar.h>
 
-enum{
-	BITCOUNT8,
-	BITCOUNT24,
-	BITCOUNT32,
-};
-
 class D3DBitmap
 {
 	BITMAPFILEHEADER m_FileHeader;
@@ -26,18 +20,21 @@ class D3DBitmap
 	BYTE* m_pImageData;
 
 public:
-	bool LoadFromImage(TCHAR* filename);
-	bool LoadFromData(BYTE* pData, int width, int height, int bitcount, bool bAlign = false);
-	bool SaveToImage(TCHAR* filename);
-	bool ConvertFrom24To32(BYTE* pAlpha);
-	bool ConvertFrom32To24();
-	bool Draw(HDC hDestDC,int left = 0,int top = 0);
-	SIZE GetImageSize();
-	int GetBitCount();
-	BYTE* GetImageData();
-	RGBQUAD* GetImagePallet();
+	bool		LoadFromData(BYTE* pData, int width, int height, int bitcount, bool bAlign = false);
+	bool		LoadFromImage(TCHAR* filename);
+	bool		SaveToImage(TCHAR* filename);
+	bool		ConvertTo32(BYTE* pAlpha);
+	bool		ConvertTo24();
+	bool		ConvertTo8();
+	bool		Draw(HDC hDestDC,int left = 0,int top = 0);
+	bool		Draw(IDirect3DDevice9* pDevice,int left = 0,int top = 0);
+	SIZE		GetImageSize();
+	int			GetBitCount();
+	BYTE*		GetImageData();
+	RGBQUAD*	GetImagePallet();
+	void		Clear();
 private:
-	void Delete();
+	void		DeleteDynRes();
 public:
 	D3DBitmap();
 	~D3DBitmap();

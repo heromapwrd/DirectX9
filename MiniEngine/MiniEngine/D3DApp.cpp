@@ -1,20 +1,26 @@
 #include "D3DApp.h"
 #include "D3DCommon.h"
 #include "FPS.h"
+#include "D3DBitmap.h"
+#include "D3DSprite.h"
+#include "CTexture2D.h"
 
 
 //-----------------------------------------------------------------
 //							全局变量
 //-----------------------------------------------------------------
-D3DFPS* g_pFPS = NULL;
+
+IDirect3DDevice9* g_pDevice = NULL;
+IDirect3DVertexBuffer9* VB	= NULL;
+IDirect3DIndexBuffer9 * IB	= NULL;
+HWND g_hWnd					= NULL;
+D3DFPS* g_pFPS				= NULL;
+CTexture2D* g_pTexture2D	= NULL;
+D3DSprite* g_pSprite		= NULL;
+D3DDEVTYPE g_DevType		= D3DDEVTYPE_HAL;
+D3DBitmap g_Bitmap;
 int g_WndWidth = 640;
 int g_WndHeight = 480;
-IDirect3DDevice9* g_pDevice = NULL;
-D3DDEVTYPE g_DevType = D3DDEVTYPE_HAL;
-HWND g_hWnd = NULL;
-
-IDirect3DVertexBuffer9* VB = NULL;
-IDirect3DIndexBuffer9 * IB = NULL;
 
 
 //------------------------------------------------------------------
@@ -138,12 +144,6 @@ HRESULT SetUp()
 	// 设置图元绘制方式
 	//g_pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	g_pDevice->SetRenderState(D3DRS_LIGHTING, false);
-	g_pFPS = new D3DFPS(g_pDevice);
-	if (!g_pFPS)
-	{
-		MessageBox(0, "Failed to create FPS Counter!", 0, 0);
-		return E_FAIL;
-	}
 
 	return S_OK;
 }
@@ -151,6 +151,8 @@ HRESULT SetUp()
 void CleanUp()
 {
 	Delete<D3DFPS*>(g_pFPS);
+	Delete<CTexture2D*>(g_pTexture2D);
+	Delete<D3DSprite*>(g_pSprite);
 	Release<IDirect3DDevice9*>(g_pDevice);
 	Release<IDirect3DVertexBuffer9*>(VB);
 	Release<IDirect3DIndexBuffer9*>(IB);
@@ -158,12 +160,33 @@ void CleanUp()
 
 HRESULT LoadContent()
 {
+	g_pFPS = new D3DFPS(g_pDevice);
+	if (!g_pFPS)
+	{
+		MessageBox(0, "Failed to create FPS Counter!", 0, 0);
+		return E_FAIL;
+	}
+	g_pTexture2D = new CTexture2D(g_pDevice);
+	if (!g_pTexture2D)
+	{
+		MessageBox(0, "Failed to create CTexture2D!", 0, 0);
+		return E_FAIL;
+	}
+	if (!g_pTexture2D->LoadImage("test1.bmp"))
+		return false;
+	g_pSprite = new D3DSprite(g_pDevice);
+	if (!g_pSprite)
+	{
+		MessageBox(0, "Failed to create D3DSprite!", 0, 0);
+		return E_FAIL;
+	}
+	//g_Bitmap.LoadFromImage("test1.bmp");
 	return S_OK;
 }
 
 void UnLoadContent()
 {
-
+	
 }
 
 bool Tick(DWORD deltatimes)
@@ -191,22 +214,36 @@ bool Render(DWORD deltatimes)
 	D3DXMATRIX world = /*Rx**/Ry*Translation;
 	g_pDevice->SetTransform(D3DTS_WORLD, &world);
 
-	/*D3DXMATRIX I;
-	D3DXMatrixIdentity(&I);
-	g_pDevice->SetTransform(D3DTS_WORLD, &I);*/
-
 
 	// Render Begin
 	g_pDevice->Clear(0, 0, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xff000000, 1.0f, 0);
 	g_pDevice->BeginScene();
 
+	// Render Bitmap
+	//g_Bitmap.Draw(g_pDevice, 500, 400);
+
+	POINT lefttop;
+	lefttop.x = 400;
+	lefttop.y = 400;
+	bool result = false;
+	if (g_pSprite->Begin(D3DXSPRITE_ALPHABLEND))
+	{
+		result = g_pSprite->Draw(g_pTexture2D, lefttop, 0xffffffff);
+		g_pSprite->End();
+	}
+	
+
 	// Render Cube
 	g_pDevice->SetStreamSource(0, VB, 0, sizeof(Vertex));
+	g_pDevice->SetRenderState(D3DRS_LIGHTING, false);
+	g_pDevice->SetTexture(0, NULL);
 	g_pDevice->SetIndices(IB);
 	g_pDevice->SetFVF(Vertex::FVF);
 	g_pDevice->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 	g_pDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 8, 0, 12);
 
+	
+	
 	// Render FPS
 	g_pFPS->Render(0xffffff00);
 

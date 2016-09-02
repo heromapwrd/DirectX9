@@ -54,8 +54,6 @@ class D3DFont
 	LPDIRECT3DSTATEBLOCK9 m_pStateSaved;
 	LPDIRECT3DSTATEBLOCK9 m_pDrawText;
 
-	D3DBitmap m_BitMap;
-
 public:
 	D3DFont(TCHAR* strFontName, DWORD dwFontHeight, DWORD dwFlags);
 	~D3DFont();
@@ -91,7 +89,5 @@ private:
 		D3DXVECTOR3 v);
 
 };
-
-extern HWND g_hWnd;
 
 #endif // _D3DFONT_H__

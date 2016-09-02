@@ -14,15 +14,14 @@ D3DBitmap::D3DBitmap()
 
 D3DBitmap::~D3DBitmap()
 {
-	Delete();
+	DeleteDynRes();
 }
 
 D3DBitmap::D3DBitmap(const D3DBitmap& bitmap)
 {
 	ZeroMemory(&m_FileHeader, sizeof(m_FileHeader));
 	ZeroMemory(&m_InfoHeader, sizeof(m_InfoHeader));
-	m_pImageData = NULL;
-	m_pPallet = NULL;
+	DeleteDynRes();
 	memcpy((void*)&m_FileHeader, (void*)&bitmap.m_FileHeader, sizeof(BITMAPFILEHEADER));
 	memcpy((void*)&m_InfoHeader, (void*)&bitmap.m_InfoHeader, sizeof(BITMAPINFOHEADER));
 	if (bitmap.m_pPallet)
@@ -45,9 +44,7 @@ D3DBitmap& D3DBitmap::operator =(const D3DBitmap& bitmap)
 {
 	ZeroMemory(&m_FileHeader, sizeof(m_FileHeader));
 	ZeroMemory(&m_InfoHeader, sizeof(m_InfoHeader));
-	m_pImageData = NULL;
-	m_pPallet = NULL;
-	Delete();
+	DeleteDynRes();
 	memcpy((void*)&m_FileHeader, (void*)&bitmap.m_FileHeader, sizeof(BITMAPFILEHEADER));
 	memcpy((void*)&m_InfoHeader, (void*)&bitmap.m_InfoHeader, sizeof(BITMAPINFOHEADER));
 	if (bitmap.m_pPallet)
@@ -96,12 +93,14 @@ bool D3DBitmap::LoadFromImage(TCHAR* filename)
 		fclose(pFile);
 		return false;
 	}
+
+	DeleteDynRes();
 	if (m_InfoHeader.biBitCount==8)
 	{
 		m_pPallet = new RGBQUAD[256];
 		if (!m_pPallet)
 		{
-			Delete();
+			DeleteDynRes();
 			fclose(pFile);
 			return false;
 		}
@@ -110,7 +109,7 @@ bool D3DBitmap::LoadFromImage(TCHAR* filename)
 		{
 			m_pPallet[i].rgbRed = m_pPallet[i].rgbGreen = m_pPallet[i].rgbBlue = i;
 		}
-		if (!fseek(pFile, 256 * sizeof(RGBQUAD), SEEK_CUR))
+		if (fseek(pFile, 256 * sizeof(RGBQUAD), SEEK_CUR))
 		{
 			fclose(pFile);
 			return false;
@@ -121,7 +120,7 @@ bool D3DBitmap::LoadFromImage(TCHAR* filename)
 	m_pImageData = new BYTE[iChannels*m_InfoHeader.biWidth*m_InfoHeader.biHeight];
 	if (!m_pImageData)
 	{
-		Delete();
+		DeleteDynRes();
 		fclose(pFile);
 		return false;
 	}
@@ -138,7 +137,7 @@ bool D3DBitmap::LoadFromImage(TCHAR* filename)
 		{
 			if (!fread((void*)&m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels], iChannels*sizeof(BYTE), 1, pFile))
 			{
-				Delete();
+				DeleteDynRes();
 				fclose(pFile);
 				return false;
 			}
@@ -150,7 +149,7 @@ bool D3DBitmap::LoadFromImage(TCHAR* filename)
 			{
 				if (!fread((void*)&skip, sizeof(BYTE), 1, pFile))
 				{
-					Delete();
+					DeleteDynRes();
 					fclose(pFile);
 					return false;
 				}
@@ -167,6 +166,8 @@ bool D3DBitmap::LoadFromData(BYTE* pData, int width, int height, int bitcount,bo
 		return false;
 	if (width <= 0 || height <= 0)
 		return false;
+	if (bitcount != 8 && bitcount != 24 && bitcount != 32)
+		return false;
 	int iChannels = bitcount / 8;
 	int WidthBytes = width*iChannels;
 	int Offset = WidthBytes % 4;
@@ -175,7 +176,7 @@ bool D3DBitmap::LoadFromData(BYTE* pData, int width, int height, int bitcount,bo
 	int iLineLength = WidthBytes + Offset;
 	int size = iLineLength*height;
 
-	m_FileHeader.bfType = 0x424D;
+	m_FileHeader.bfType = 0x4D42;
 	m_FileHeader.bfReserved1 = 0;
 	m_FileHeader.bfReserved2 = 0;
 
@@ -189,12 +190,13 @@ bool D3DBitmap::LoadFromData(BYTE* pData, int width, int height, int bitcount,bo
 	m_InfoHeader.biXPelsPerMeter = 0;
 	m_InfoHeader.biYPelsPerMeter = 0;
 
+	DeleteDynRes();
 	if (bitcount == 8)
 	{
 		m_pPallet = new RGBQUAD[256];
 		if (!m_pPallet)
 		{
-			Delete();
+			DeleteDynRes();
 			return false;
 		}
 		memset((void*)m_pPallet, 0, 256 * sizeof(RGBQUAD));
@@ -218,7 +220,7 @@ bool D3DBitmap::LoadFromData(BYTE* pData, int width, int height, int bitcount,bo
 	m_pImageData = new BYTE[iChannels*width*height];
 	if (!m_pImageData)
 	{
-		Delete();
+		DeleteDynRes();
 		return false;
 	}
 
@@ -247,6 +249,8 @@ bool D3DBitmap::LoadFromData(BYTE* pData, int width, int height, int bitcount,bo
 
 bool D3DBitmap::SaveToImage(TCHAR* filename)
 {
+	if (!m_pImageData)
+		return false;
 	FILE* pFile;
 	if ((pFile = fopen(filename, "wb")) == NULL)
 		return false;
@@ -322,10 +326,14 @@ RGBQUAD* D3DBitmap::GetImagePallet()
 	return m_pPallet;
 }
 
-bool D3DBitmap::ConvertFrom24To32(BYTE* pAlpha)
+bool D3DBitmap::ConvertTo32(BYTE* pAlpha)
 {
 	int iChannels = 4;
-	int iChannelsOld = 3;
+	int iChannelsOld = m_InfoHeader.biBitCount/8;
+	if (iChannels == iChannelsOld)
+		return true;
+	if (iChannelsOld < 3)
+		return false;
 	BYTE* pNewBuff = new BYTE[iChannels * m_InfoHeader.biWidth*m_InfoHeader.biHeight];
 	if (!pNewBuff)
 		return false;
@@ -336,16 +344,16 @@ bool D3DBitmap::ConvertFrom24To32(BYTE* pAlpha)
 		{
 			if (NULL == pAlpha)
 			{
-				pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = 0;
+				pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 3] = 0;
 			}
 			else
 			{
-				pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = pAlpha[y*m_InfoHeader.biWidth + x];
+				pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 3] = pAlpha[y*m_InfoHeader.biWidth + x];
 			}
 			
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0];
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1];
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 3] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 0];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 1];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 2];
 		}
 	}
 
@@ -364,16 +372,22 @@ bool D3DBitmap::ConvertFrom24To32(BYTE* pAlpha)
 	int iSizeDelta = iLineDelta*m_InfoHeader.biHeight;
 
 	m_FileHeader.bfSize += iSizeDelta;
-	m_InfoHeader.biSizeImage + iSizeDelta;
+	m_InfoHeader.biSizeImage += iSizeDelta;
 	m_InfoHeader.biBitCount = 8 * iChannels;
 	DeleteArray(m_pImageData);
 	m_pImageData = pNewBuff;
+	return true;
 }
 
-bool D3DBitmap::ConvertFrom32To24()
+bool D3DBitmap::ConvertTo24()
 {
 	int iChannels = 3;
-	int iChannelsOld = 4;
+	int iChannelsOld = m_InfoHeader.biBitCount / 8;
+	if (iChannels == iChannelsOld)
+		return true;
+	if (iChannelsOld < 3)
+		return false;
+	
 	BYTE* pNewBuff = new BYTE[iChannels * m_InfoHeader.biWidth*m_InfoHeader.biHeight];
 	if (!pNewBuff)
 		return false;
@@ -383,12 +397,11 @@ bool D3DBitmap::ConvertFrom32To24()
 		for (int x = 0; x < m_InfoHeader.biWidth; x++)
 		{
 
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1];
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2];
-			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2] = m_pImageData[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 3];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 0];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 1] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 1];
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 2] = m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 2];
 		}
 	}
-
 
 	int iOffset = (iChannels*m_InfoHeader.biWidth) % 4;
 	if (iOffset != 0)
@@ -404,13 +417,14 @@ bool D3DBitmap::ConvertFrom32To24()
 	int iSizeDelta = iLineDelta*m_InfoHeader.biHeight;
 
 	m_FileHeader.bfSize += iSizeDelta;
-	m_InfoHeader.biSizeImage + iSizeDelta;
+	m_InfoHeader.biSizeImage += iSizeDelta;
 	m_InfoHeader.biBitCount = 8 * iChannels;
 	DeleteArray(m_pImageData);
 	m_pImageData = pNewBuff;
+	return true;
 }
 
-void D3DBitmap::Delete()
+void D3DBitmap::DeleteDynRes()
 {
 	DeleteArray<RGBQUAD*>(m_pPallet);
 	DeleteArray<BYTE*>(m_pImageData);
@@ -437,6 +451,166 @@ bool D3DBitmap::Draw(HDC hDestDC,int left,int top)
 	DeleteObject(hBitmap);
 	DeleteDC(hDC);
 	ReleaseDC(0, hDC);
+	return true;
 }
 
+bool D3DBitmap::Draw(IDirect3DDevice9* pDevice, int left, int top)
+{
+	if (!pDevice)
+		return false;
+	if (m_InfoHeader.biBitCount != 8 && m_InfoHeader.biBitCount != 24 && m_InfoHeader.biBitCount != 32)
+		return false;
+	struct VertexB
+	{
+		D3DXVECTOR4 pos;
+		D3DCOLOR diff;
+		float tu, tv;
+
+		VertexB(D3DXVECTOR4 p, D3DCOLOR color, float u, float v)
+		{
+			pos = p;
+			diff = color;
+			tu = u;
+			tv = v;
+		}
+	};
+
+	const DWORD FVF = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+	IDirect3DVertexBuffer9* pVB = NULL;
+	HRESULT hr = 0;
+	hr = pDevice->CreateVertexBuffer(6*sizeof(VertexB), D3DUSAGE_WRITEONLY, FVF, D3DPOOL_MANAGED, &pVB, NULL);
+	if (FAILED(hr))
+		return false;
+	VertexB* pVertex = NULL;
+	pVB->Lock(0, 0, (void**)&pVertex, 0);
+	pVertex[0] = VertexB(D3DXVECTOR4(left, top + m_InfoHeader.biHeight, 0.9f, 1.0f), 0xffffffff, 0.0f, 1.0f);
+	pVertex[1] = VertexB(D3DXVECTOR4(left, top, 0.9f, 1.0f), 0xffffffff, 0.0f, 0.0f);
+	pVertex[2] = VertexB(D3DXVECTOR4(left + m_InfoHeader.biWidth, top + m_InfoHeader.biHeight, 0.9f, 1.0f), 0xffffffff, 1.0f, 1.0f);
+	pVertex[3] = VertexB(D3DXVECTOR4(left + m_InfoHeader.biWidth, top + m_InfoHeader.biHeight, 0.9f, 1.0f), 0xffffffff, 1.0f, 1.0f);
+	pVertex[4] = VertexB(D3DXVECTOR4(left, top, 0.9f, 1.0f), 0xffffffff, 0.0f, 0.0f);
+	pVertex[5] = VertexB(D3DXVECTOR4(left + m_InfoHeader.biWidth, top, 0.9f, 1.0f), 0xffffffff, 1.0f, 0.0f);
+	pVB->Unlock();
+	
+	IDirect3DTexture9* pTex = NULL;
+	hr = pDevice->CreateTexture(m_InfoHeader.biWidth, m_InfoHeader.biHeight, 0, 0/*D3DUSAGE_WRITEONLY*/, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &pTex, NULL);
+	if (FAILED(hr))
+		return false;
+	D3DLOCKED_RECT lockRect;
+	pTex->LockRect(0, &lockRect, NULL, 0);
+	BYTE* pData = (BYTE*)lockRect.pBits;
+	int iChannels = m_InfoHeader.biBitCount / 8;
+	for (int y = 0; y < m_InfoHeader.biHeight; y++)
+	{
+		for (int x = 0; x < m_InfoHeader.biWidth; x++)
+		{
+			if (1 == iChannels)
+			{
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 3] = 0;
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 0]
+					= pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 1]
+					= pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 2]
+					= m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 0];
+			}
+			else if (3 == iChannels)
+			{
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 3] = 0;
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 0] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 2];
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 1] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 1];
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 2] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 0];
+			}
+			else 
+			{
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 3] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 3];
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 0] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 2];
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 1] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 1];
+				pData[y*m_InfoHeader.biWidth * 4 + x * 4 + 2] = m_pImageData[y*m_InfoHeader.biWidth*iChannels + x*iChannels + 0];
+			}
+		}
+	}
+	pTex->UnlockRect(0);
+
+	// Render
+	pDevice->SetTexture(0, pTex);
+	pDevice->SetRenderState(D3DRS_LIGHTING, false);
+	pDevice->SetRenderState(D3DRS_ZENABLE, false);
+	pDevice->SetPixelShader(NULL);
+	pDevice->SetStreamSource(0, pVB, 0, sizeof(VertexB));
+	pDevice->SetFVF(FVF);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 2);
+
+	Release<IDirect3DVertexBuffer9*>(pVB);
+	Release<IDirect3DTexture9*>(pTex);
+
+}
+
+bool D3DBitmap::ConvertTo8()
+{
+	int iChannels = 1;
+	int iChannelsOld = m_InfoHeader.biBitCount/8;
+	if (iChannels == iChannelsOld)
+		return true;
+
+	BYTE* pNewBuff = new BYTE[iChannels * m_InfoHeader.biWidth*m_InfoHeader.biHeight];
+	if (!pNewBuff)
+		return false;
+	RGBQUAD* pNewPallet = new RGBQUAD[256];
+	if (!pNewPallet)
+	{
+		DeleteArray<BYTE*>(pNewBuff);
+		return false;
+	}
+
+	memset((void*)pNewBuff, 0, iChannels * m_InfoHeader.biWidth*m_InfoHeader.biHeight);
+	for (int y = 0; y < m_InfoHeader.biHeight; y++)
+	{
+		for (int x = 0; x < m_InfoHeader.biWidth; x++)
+		{
+
+			pNewBuff[y*iChannels*m_InfoHeader.biWidth + x*iChannels + 0] = (float)m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 0]*0.299f
+				+ (float)m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 1] * 0.587f
+				+ (float)m_pImageData[y*iChannelsOld*m_InfoHeader.biWidth + x*iChannelsOld + 2] * 0.114f;
+			
+		}
+	}
+
+	memset((void*)pNewPallet, 0, 256 * sizeof(RGBQUAD));
+	for (int i = 0; i < 256; i++)
+	{
+		pNewPallet[i].rgbBlue = i;
+		pNewPallet[i].rgbGreen = i;
+		pNewPallet[i].rgbRed = i;
+	}
+
+	int iOffset = (iChannels*m_InfoHeader.biWidth) % 4;
+	if (iOffset != 0)
+		iOffset = 4 - iOffset;
+	int iLine = m_InfoHeader.biWidth*iChannels + iOffset;
+
+	int iOffsetOld = (iChannelsOld*m_InfoHeader.biWidth) % 4;
+	if (iOffsetOld != 0)
+		iOffsetOld = 4 - iOffsetOld;
+	int iLineOld = m_InfoHeader.biWidth*iChannelsOld + iOffsetOld;
+	int iLineDelta = iLine - iLineOld;
+
+	int iSizeDelta = iLineDelta*m_InfoHeader.biHeight;
+
+	m_FileHeader.bfSize += iSizeDelta+256*sizeof(RGBQUAD);
+	m_FileHeader.bfOffBits += 256 * sizeof(RGBQUAD);
+	m_InfoHeader.biSizeImage += iSizeDelta;
+	m_InfoHeader.biBitCount = 8 * iChannels;
+	m_InfoHeader.biClrUsed = 256;
+	m_InfoHeader.biClrImportant = 256;
+	DeleteArray<BYTE*>(m_pImageData);
+	DeleteArray<RGBQUAD*>(m_pPallet);
+	m_pImageData = pNewBuff;
+	m_pPallet = pNewPallet;
+	return true;
+}
+
+void D3DBitmap::Clear()
+{
+	memset((void*)&m_FileHeader, 0, sizeof(BITMAPFILEHEADER));
+	memset((void*)&m_InfoHeader, 0, sizeof(BITMAPINFOHEADER));
+	DeleteDynRes();
+}
 

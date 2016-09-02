@@ -21,21 +21,29 @@
   <ItemGroup>
     <ClInclude Include="ArcBall.h" />
     <ClInclude Include="Counter.h" />
+    <ClInclude Include="CTexture2D.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="D3DBitmap.h" />
     <ClInclude Include="D3DCamera.h" />
     <ClInclude Include="D3DCommon.h" />
     <ClInclude Include="D3DFont.h" />
+    <ClInclude Include="D3DFrame.h" />
+    <ClInclude Include="D3DMesh.h" />
+    <ClInclude Include="D3DSprite.h" />
     <ClInclude Include="FPS.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArcBall.cpp" />
     <ClCompile Include="Couter.cpp" />
+    <ClCompile Include="CTexture2D.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="D3DBitmap.cpp" />
     <ClCompile Include="D3DCamera.cpp" />
     <ClCompile Include="D3DCommon.cpp" />
     <ClCompile Include="D3DFont.cpp" />
+    <ClCompile Include="D3DFrame.cpp" />
+    <ClCompile Include="D3DMesh.cpp" />
+    <ClCompile Include="D3DSprite.cpp" />
     <ClCompile Include="FPS.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

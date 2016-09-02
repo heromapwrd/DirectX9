@@ -198,10 +198,7 @@ HRESULT D3DFont::Init(LPDIRECT3DDEVICE9 pDevice)
 				*pTexBits++ = 0x0000;
 		}
 		pRectBits += ddrect.Pitch;
-		//pTexBits = (WORD*)(pRectBits + ddrect.Pitch);
 	}
-	
-	m_BitMap.LoadFromData((BYTE*)pBitmapBits, m_dwTexWidth, m_dwTexHeight, 32);
 
 	m_pTexture->UnlockRect(0);
 	SelectObject(hDC, hBmpOld);
@@ -209,12 +206,7 @@ HRESULT D3DFont::Init(LPDIRECT3DDEVICE9 pDevice)
 	DeleteObject(hBitmap);
 	DeleteObject(hFont);
 	DeleteDC(hDC);
-
-	m_BitMap.SaveToImage("test.bmp");
-
 	
-
-
 	int vertexsize = max(sizeof(Font2DVertex), sizeof(Font3DVertex));
 	hr = m_pDevice->CreateVertexBuffer(
 		MAXVERTEX*vertexsize, 
